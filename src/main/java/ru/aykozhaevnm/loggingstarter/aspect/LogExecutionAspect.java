@@ -31,12 +31,7 @@ public class LogExecutionAspect {
 
         try {
             return joinPoint.proceed();
-        } catch (Exception e) {
-            if (e.getCause() != null) {
-                throw e.getCause();
-            }
-            throw e;
-        } finally {
+        }  finally {
             log.info("Время выполнения метода '{}': {} мс", methodName, System.currentTimeMillis() - start);
         }
     }
