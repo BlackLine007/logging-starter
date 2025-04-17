@@ -1,9 +1,13 @@
 package ru.aykozhaevnm.loggingstarter;
 
+import feign.Logger;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import ru.aykozhaevnm.loggingstarter.aspect.LogExecutionAspect;
+import ru.aykozhaevnm.loggingstarter.feign.FeignRequestLogger;
+import ru.aykozhaevnm.loggingstarter.service.LoggingService;
 import ru.aykozhaevnm.loggingstarter.webfilter.WebLoggingFilter;
 import ru.aykozhaevnm.loggingstarter.webfilter.WebLoggingRequestBodyAdvice;
 
@@ -24,8 +28,27 @@ public class LoggingStarterAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "logging.web-logging", value = {"enabled", "log-body"}, havingValue = "true")
+    @ConditionalOnBean(WebLoggingFilter.class)
+    @ConditionalOnProperty(prefix = "logging.web-logging", value = "log-body", havingValue = "true")
     public WebLoggingRequestBodyAdvice webLoggingRequestBodyAdvice() {
         return new WebLoggingRequestBodyAdvice();
     }
+
+    @Bean
+    public LoggingService loggingService() {
+        return new LoggingService();
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "logging.web-logging", value = "log-feign-requests", havingValue = "true")
+    public FeignRequestLogger feignRequestLogger() {
+        return new FeignRequestLogger();
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "logging.web-logging", value = "log-feign-requests", havingValue = "true")
+    public Logger.Level feignLoggerLevel() {
+        return Logger.Level.BASIC;
+    }
+
 }
